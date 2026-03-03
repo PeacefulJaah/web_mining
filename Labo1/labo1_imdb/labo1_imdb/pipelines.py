@@ -6,8 +6,35 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-
+from elasticsearch_dsl import connections
+from .models import MovieDocument
 
 class Labo1ImdbPipeline:
+    def __init__(self):
+        connections.create_connection(hosts=['http://localhost:9200'])
+        MovieDocument.init()
+    
     def process_item(self, item, spider):
+        try:
+            annee = int(item["year"]) if item["year"] else 0
+        except ValueError:
+            annee = 0  
+        try:
+            note = float(item["rating"]) if item["rating"] else 0.0
+        except ValueError:
+            note = 0.0
+            
+        movie = MovieDocument(
+            meta={'id': item["url"]},
+            rank=item["rank"],
+            title=item["title"],
+            year=annee,
+            duration=item["duration"],
+            certificate=item["certificate"],
+            rating=note,
+            votes=item["votes"],
+            url=item["url"],
+            poster_url=item["poster_url"]
+        )        
+        movie.save()
         return item
