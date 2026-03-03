@@ -20,21 +20,22 @@ class Labo1ImdbPipeline:
         except ValueError:
             annee = 0  
         try:
+            rank = int(item["rank"].replace('#','')) if item["rank"] else 0
+        except ValueError:
+            rank = 0  
+        try:
             note = float(item["rating"]) if item["rating"] else 0.0
         except ValueError:
             note = 0.0
             
         movie = MovieDocument(
             meta={'id': item["url"]},
-            rank=item["rank"],
+            rank=rank,
             title=item["title"],
             year=annee,
             duration=item["duration"],
-            certificate=item["certificate"],
             rating=note,
             votes=item["votes"],
-            url=item["url"],
-            poster_url=item["poster_url"]
         )        
         movie.save()
         return item
