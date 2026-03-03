@@ -2,3 +2,5 @@ elasticsearch
 elasticsearch-dsl
 scrapy
 beautifulsoup4
+fastapi
+uvicorn
