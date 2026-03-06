@@ -25,7 +25,14 @@ async def AvgRatingByYear():
         .metric('avg_by_year', 'avg', field='rating')
     response = s.execute()
 
-    return [year.to_dict() for year in response.aggregations.per_year.buckets]
+    resultat = []
+    for bucket in response.aggregations.per_year.buckets:
+        resultat.append({
+            "year": bucket.key,
+            "doc_count": bucket.doc_count,
+            "avg": round(bucket.avg_by_year.value, 2) if bucket.avg_by_year.value else None
+        })
+    return resultat
 
 @app.get("/api/v1/movies/count")
 async def CountNbMovies():
@@ -38,8 +45,14 @@ async def searchByTitle(mots_cle: str):
     s = MovieDocument.search(using=client) \
         .query("multi_match", query=mots_cle, fields=['title^5', 'year^2', 'rating', 'rank'], lenient=True)
     response = s.execute()
-
-    return [(f"Score : {hit.meta.score}", hit.to_dict())  for hit in response]     
+        
+    resultat = []
+    for bucket in response:
+        resultat.append({
+            "score": round(bucket.meta.score, 2),
+            "movie": bucket.to_dict()
+        })
+    return resultat
 
 @app.get("/api/v1/movies/title/{title}")
 async def searchByTitle(title: str):

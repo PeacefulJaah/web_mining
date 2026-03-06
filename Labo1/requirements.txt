@@ -4,3 +4,5 @@ scrapy
 beautifulsoup4
 fastapi
 uvicorn
+dash
+pandas
